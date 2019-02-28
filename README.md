@@ -20,9 +20,10 @@ Messages are sent to a Telegram bot run on the RPi, which creates an image out o
 Telegram bot set up, see guide [here](https://medium.freecodecamp.org/learn-to-build-your-first-bot-in-telegram-with-python-4c99526765e4)  
 Set up app for the twitter account messages will be sent to, see guide [here](https://docs.inboundnow.com/guide/create-twitter-application/)  
 
+Add the keys generated for both of these to the auth_template.py and rename as auth.py
+
 ### Python libraries:
 
-Library for e-Paper display - Available [here](https://www.waveshare.com/wiki/7.5inch_e-Paper_HAT) under **demo code**.
 Twython library: `pip install Twython`  
 Python telegram bot: `pip install python-telegram-bot`  
 Net interfaces for getting ip: `pip install netifaces`
