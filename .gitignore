@@ -1,2 +1,6 @@
 auth.py
 auth.pyc
+*.pyc
+*.png
+Old scripts/
+.idea
