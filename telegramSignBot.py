@@ -131,7 +131,7 @@ def gone_home(bot, update):
 def working_from_home(bot, update):
 
     chat_id = update.message.chat_id
-    message = "Working from home. Email me."
+    message = "Working from home today. Email me."
     generate_message(bot, message, chat_id)
 
 
