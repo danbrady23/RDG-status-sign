@@ -19,15 +19,16 @@ from auth import twitter_consumer_key, twitter_consumer_secret, twitter_access_t
 # Ip: Reply with IP address
 # Sign: Put message on sign and twitter
 
+font_dir = path.join(dir_path, 'fonts', 'small_pixel-7.ttf')
 
 # Updating twitter
-def twitter_upload(message):
+def init_twitter():
     twitter = Twython(twitter_consumer_key,
                       twitter_consumer_secret,
                       twitter_access_token,
                       twitter_access_secret)
 
-    twitter.update_status(status=message)
+    return twitter
 
 
 # Generate image
@@ -35,8 +36,6 @@ def generate_image(message_text, font_size=50, line_length=30):
 
     # Set-up
     img_size = (epd7in5.EPD_WIDTH, epd7in5.EPD_HEIGHT)
-    font_dir = path.join(dir_path, 'fonts', 'small_pixel-7.ttf')
-    # '/usr/share/fonts/truetype/freefont/FreeMonoBoldOblique.ttf'
     text_col = 0
     back_col = 255
 
@@ -47,19 +46,38 @@ def generate_image(message_text, font_size=50, line_length=30):
 
     # Generate text
     message_wrapped = textwrap.fill(message_text, line_length)
-    time_msg = 'Last updated: ' + datetime.now().strftime('%H:%M')
 
     # Calculate positions
     msg_dims = draw.textsize(message_wrapped, font)
     msg_pos = ((image.width-msg_dims[0])/2,
                (image.height-msg_dims[1])/2)
 
-    time_dims = draw.textsize(time_msg, font)
-    time_pos = (0, image.height-time_dims[1])
-
     # Draw text to image
     draw.multiline_text(msg_pos, message_wrapped, fill=text_col, font=font, align="center")
+
+    return image
+
+
+def add_time(image, font_size=30):
+    text_col = 0
+
+    # Image set-up
+    draw = ImageDraw.Draw(image)
+    font = ImageFont.truetype(font_dir, size=font_size)
+
+    # Generate text
+    time_msg = 'Updated: ' + datetime.now().strftime('%H:%M %d/%m')
+    twitter_handle = '@' + twitter.verify_credentials()['screen_name']
+
+    time_dims = draw.textsize(time_msg, font)
+    time_pos = (0, image.height - time_dims[1])
+
+    handle_dims = draw.textsize(twitter_handle, font)
+    handle_pos = (image.width - handle_dims[0], image.height - handle_dims[1])
+
+    # Draw text to image
     draw.text(time_pos, time_msg, fill=text_col, font=font, align="center")
+    draw.text(handle_pos, twitter_handle, fill=text_col, font=font, align="center")
 
     return image
 
@@ -96,30 +114,56 @@ def get_ip(bot, update):
     bot.send_message(chat_id=update.message.chat_id, text=reply)
 
 
-def update_sign(bot, update):
+def in_office(bot, update):
+
+    chat_id = update.message.chat_id
+    message = "In the office. Knock if the door is closed"
+    generate_message(bot, message, chat_id)
+
+
+def gone_home(bot, update):
+
+    chat_id = update.message.chat_id
+    message = "Gone home!"
+    generate_message(bot, message, chat_id)
+
+
+def custom_message(bot, update):
 
     # This needs error checking
-
+    chat_id = update.message.chat_id
     message = update.message.text
+    generate_message(bot, message, chat_id)
+
+
+def generate_message(bot, message, chat_id):
+    bot.send_message(chat_id=chat_id, text='Received')
 
     image = generate_image(message)
+    image = add_time(image)
+    image.save('message.png', 'PNG')
     draw_image(image)
 
-    twitter_upload(message)
+    twitter.update_status(status=message)
 
-    bot.send_message(chat_id=update.message.chat_id, text="Updated!")
+    bot.send_photo(chat_id=chat_id, photo=open('message.png', 'rb'), caption='Updated!')
 
 
+# Initialise ePaper display and Twitter connection
 epd = init_epd()
+twitter = init_twitter()
 
+# Initialised Telegram listener
 updater = Updater(token=telegram_token)
 dispatcher = updater.dispatcher
 
-ip_handler = CommandHandler('get_ip', get_ip)
-dispatcher.add_handler(ip_handler)
+# Add telegram handlers
+dispatcher.add_handler(CommandHandler('get_ip', get_ip))
+dispatcher.add_handler(CommandHandler('in_office', in_office))
+dispatcher.add_handler(CommandHandler('gone_home', gone_home))
 
-sign_handler = MessageHandler(Filters.text, update_sign)
-dispatcher.add_handler(sign_handler)
+dispatcher.add_handler(MessageHandler(Filters.text, custom_message))
+
 
 updater.start_polling()
 updater.idle()
