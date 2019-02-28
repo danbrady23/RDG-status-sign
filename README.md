@@ -6,7 +6,7 @@ Sign for my office door that is wireless and can be updated remotely.
 
 Components:
 
-* (Raspberry Pi Zero W with header pins)[https://shop.pimoroni.com/products/raspberry-pi-zero-wh-with-pre-soldered-header]
+* [Raspberry Pi Zero W with header pins](https://shop.pimoroni.com/products/raspberry-pi-zero-wh-with-pre-soldered-header)
 * (Waveshare 7.5 e-Paper display with Hat)[https://www.waveshare.com/product/7.5inch-e-paper-hat.htm]
 * (Ikea MOSSEBO photo frame)[https://www.ikea.com/gb/en/products/decoration/frames-pictures/mossebo-frame-white-stained-oak-effect-art-70303287/]
 
