@@ -27,7 +27,7 @@ Twython library: `pip install Twython`
 Python telegram bot: `pip install python-telegram-bot`  
 Net interfaces for getting ip: `pip install netifaces`
 
-### Things to add in this version:
+### Things still to add in this version:
 
 * Error handling
 * Logging
