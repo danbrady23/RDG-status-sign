@@ -128,6 +128,13 @@ def gone_home(bot, update):
     generate_message(bot, message, chat_id)
 
 
+def working_from_home(bot, update):
+
+    chat_id = update.message.chat_id
+    message = "Working from home. Email me."
+    generate_message(bot, message, chat_id)
+
+
 def custom_message(bot, update):
 
     # This needs error checking
@@ -161,6 +168,8 @@ dispatcher = updater.dispatcher
 dispatcher.add_handler(CommandHandler('get_ip', get_ip))
 dispatcher.add_handler(CommandHandler('in_office', in_office))
 dispatcher.add_handler(CommandHandler('gone_home', gone_home))
+dispatcher.add_handler(CommandHandler('working_from_home', working_from_home))
+
 
 dispatcher.add_handler(MessageHandler(Filters.text, custom_message))
 
