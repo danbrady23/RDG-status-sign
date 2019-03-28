@@ -1,4 +1,3 @@
-from twython import Twython
 from PIL import Image, ImageDraw, ImageFont
 from datetime import datetime
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
@@ -12,23 +11,14 @@ dir_path = path.dirname(__file__)
 sys.path.append(dir_path)
 
 import epd7in5
-from auth import twitter_consumer_key, twitter_consumer_secret, twitter_access_token, twitter_access_secret, telegram_token
+from auth import telegram_token
 
 # Actions to perform when new message arrives
 # what type of message is it?
 # Ip: Reply with IP address
-# Sign: Put message on sign and twitter
+# Sign: Put message on sign
 
 font_dir = path.join(dir_path, 'fonts', 'small_pixel-7.ttf')
-
-# Updating twitter
-def init_twitter():
-    twitter = Twython(twitter_consumer_key,
-                      twitter_consumer_secret,
-                      twitter_access_token,
-                      twitter_access_secret)
-
-    return twitter
 
 
 # Generate image
@@ -67,17 +57,17 @@ def add_time(image, font_size=30):
 
     # Generate text
     time_msg = 'Updated: ' + datetime.now().strftime('%H:%M %d/%m')
-    twitter_handle = '@' + twitter.verify_credentials()['screen_name']
+    #twitter_handle = '@' + twitter.verify_credentials()['screen_name']
 
     time_dims = draw.textsize(time_msg, font)
     time_pos = (0, image.height - time_dims[1])
 
-    handle_dims = draw.textsize(twitter_handle, font)
-    handle_pos = (image.width - handle_dims[0], image.height - handle_dims[1])
+    #handle_dims = draw.textsize(twitter_handle, font)
+    #handle_pos = (image.width - handle_dims[0], image.height - handle_dims[1])
 
     # Draw text to image
     draw.text(time_pos, time_msg, fill=text_col, font=font, align="center")
-    draw.text(handle_pos, twitter_handle, fill=text_col, font=font, align="center")
+    #draw.text(handle_pos, twitter_handle, fill=text_col, font=font, align="center")
 
     return image
 
@@ -85,12 +75,13 @@ def add_time(image, font_size=30):
 # Draw image on sign
 def draw_image(image):
 
+    epd.init()
     # Convert image to buffer
     img_buf = epd.getbuffer(image)
 
     # Draw image on display
     epd.display(img_buf)
-
+    epd.sleep()
 
 # Get IP address and return as string
 def getIPaddress(ifaceName):
@@ -151,14 +142,11 @@ def generate_message(bot, message, chat_id):
     image.save('message.png', 'PNG')
     draw_image(image)
 
-    twitter.update_status(status=message)
-
     bot.send_photo(chat_id=chat_id, photo=open('message.png', 'rb'), caption='Updated!')
 
 
-# Initialise ePaper display and Twitter connection
+# Initialise ePaper display
 epd = init_epd()
-twitter = init_twitter()
 
 # Initialised Telegram listener
 updater = Updater(token=telegram_token)
